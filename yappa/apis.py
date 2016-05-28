@@ -3,7 +3,7 @@ import requests
 from yappa.settings import Settings
 
 
-class AdaptiveEndpointBase(object):
+class AdaptiveApiBase(object):
     headers = {}
 
     def __init__(self, credentials, debug=False):
@@ -33,19 +33,19 @@ class AdaptiveEndpointBase(object):
         pass
 
 
-class PreApproval(AdaptiveEndpointBase):
+class PreApproval(AdaptiveApiBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.endpoint = '{}/{}'.format(self.endpoint, 'Preapproval')
 
 
-class PreApprovalDetails(AdaptiveEndpointBase):
+class PreApprovalDetails(AdaptiveApiBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.endpoint = '{}/{}'.format(self.endpoint, 'PreapprovalDetails')
 
 
-class Pay(AdaptiveEndpointBase):
+class Pay(AdaptiveApiBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.endpoint = '{}/{}'.format(self.endpoint, 'Pay')
