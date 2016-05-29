@@ -1,9 +1,16 @@
 
-### Add Django integration usage
+## Django integration
+
+### Preapproval with Django form
 ```
 from django.conf import settings
 debug = hasattr(settings, 'DEBUG', False)
 
-preapproval = PreApproval(credentials=self.credentials, debug=debug)
+paypal_credentials = 
+
+preapproval = PreApproval(credentials=paypal_credentials, debug=debug)
+
+data = form.cleaned_data
+preapproval.request(**data)
 
 ```
