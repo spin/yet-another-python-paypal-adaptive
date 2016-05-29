@@ -180,3 +180,68 @@ class PreApprovalTestCase(unittest.TestCase):
         self.assertEquals(args, (expected_endpoint,))
         self.assertEquals(kwargs['headers'], expected_headers)
         self.assertEquals(json.loads(kwargs['data']), expected_payload)
+
+    @patch('yappa.api.requests.post')
+    def test_retrieve_preapproval_details_successfully(self, mock_post):
+        mock_response = {
+            'approved': 'false',
+            'cancelUrl': self.cancel_url,
+            'curPayments': '0',
+            'curPaymentsAmount': '0.00',
+            'curPeriodAttempts': '0',
+            'currencyCode': 'USD',
+            'dateOfMonth': '0',
+            'dayOfWeek': 'NO_DAY_SPECIFIED',
+            'displayMaxTotalAmount': 'false',
+            'endingDate': '2016-06-19T18:27:48.000+08:00',
+            'maxTotalAmountOfAllPayments': '500.00',
+            'paymentPeriod': 'NO_PERIOD_SPECIFIED',
+            'pinType': 'NOT_REQUIRED',
+            'responseEnvelope': {
+                'ack': 'Success',
+                'build': '20420247',
+                'correlationId': 'c8c558a0c0401',
+                'timestamp': '2016-05-29T04:09:05.377-07:00'
+            },
+            'returnUrl': self.return_url,
+            'startingDate': '2016-05-30T18:27:48.000+08:00',
+            'status': 'ACTIVE'
+        }
+        mock_post.return_value.json.return_value = mock_response
+
+        preapproval_detials = PreApprovalDetails(self.credentials, debug=True)
+        resp = preapproval_detials.request()
+
+        self.assertEquals(resp.ack, 'Success')
+        self.assertEquals(resp.approved, 'false')
+        self.assertEquals(resp.status, 'ACTIVE')
+        self.assertEquals(resp.maxTotalAmountOfAllPayments, '500.00')
+
+    @patch('yappa.api.requests.post')
+    def test_retrieve_preapproval_details_with_invalid_key(self, mock_post):
+        mock_response = {
+            'error': [{
+                'category': 'Application',
+                'domain': 'PLATFORM',
+                'errorId': '580022',
+                'message': 'Invalid request parameter: preapprovalKey with value PA-5W434979gggggg',
+                'parameter': ['preapprovalKey', 'PA-5W434979gggggg'],
+                'severity': 'Error',
+                'subdomain': 'Application'
+            }],
+            'responseEnvelope': {
+                'ack': 'Failure',
+                'build': '20420247',
+                'correlationId': '9a2ae1abba0ac',
+                'timestamp': '2016-05-29T09:13:32.007-07:00'
+            }
+        }
+        mock_post.return_value.json.return_value = mock_response
+
+        preapproval_detials = PreApprovalDetails(self.credentials, debug=True)
+        resp = preapproval_detials.request()
+
+        self.assertEquals(resp.ack, 'Failure')
+        self.assertEquals(resp.errorId, '580022')
+        self.assertEquals(resp.message, 'Invalid request parameter: preapprovalKey with value PA-5W434979gggggg')
+        self.assertEquals(resp.timestamp, '2016-05-29T09:13:32.007-07:00')
