@@ -1,9 +1,12 @@
+import json
 import unittest
 from unittest.mock import patch
 from datetime import datetime, timezone
 from pytz.exceptions import UnknownTimeZoneError
+from decimal import Decimal
 
 from yappa.utils import current_local_time
+from yappa.utils import decimal_default
 
 
 class UtilsTestCase(unittest.TestCase):
@@ -38,3 +41,19 @@ class UtilsTestCase(unittest.TestCase):
 
         with self.assertRaises(UnknownTimeZoneError) as e:
             current_local_time('invalid/timezone')
+
+    def test_decimal_default(self):
+        product = {
+            'price': Decimal('55.12')
+        }
+
+        result = json.dumps(product, default=decimal_default)
+        self.assertEqual(result, '{"price": 55.12}')
+
+    def test_decimal_default_with_non_decimal(self):
+        product = {
+            'name': 'Product 1'
+        }
+
+        result = json.dumps(product, default=decimal_default)
+        self.assertEqual(result, '{"name": "Product 1"}')
