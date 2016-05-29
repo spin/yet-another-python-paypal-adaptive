@@ -182,7 +182,7 @@ class PreApprovalTestCase(unittest.TestCase):
         self.assertEquals(json.loads(kwargs['data']), expected_payload)
 
     @patch('yappa.api.requests.post')
-    def test_retrieve_preapproval_details_successfully(self, mock_post):
+    def test_retrieve_preapproval_details_unapproved(self, mock_post):
         mock_response = {
             'approved': 'false',
             'cancelUrl': self.cancel_url,
@@ -216,6 +216,46 @@ class PreApprovalTestCase(unittest.TestCase):
         self.assertEquals(resp.approved, 'false')
         self.assertEquals(resp.status, 'ACTIVE')
         self.assertEquals(resp.maxTotalAmountOfAllPayments, '500.00')
+
+    @patch('yappa.api.requests.post')
+    def test_retrieve_preapproval_details_approved(self, mock_post):
+        mock_response = {
+            'approved': 'true',
+            'cancelUrl': self.cancel_url,
+            'curPayments': '0',
+            'curPaymentsAmount': '0.00',
+            'curPeriodAttempts': '0',
+            'currencyCode': 'USD',
+            'dateOfMonth': '0',
+            'dayOfWeek': 'NO_DAY_SPECIFIED',
+            'displayMaxTotalAmount': 'false',
+            'endingDate': '2016-06-19T18:27:48.000+08:00',
+            'maxTotalAmountOfAllPayments': '500.00',
+            'paymentPeriod': 'NO_PERIOD_SPECIFIED',
+            'pinType': 'NOT_REQUIRED',
+            'responseEnvelope': {
+                'ack': 'Success',
+                'build': '20420247',
+                'correlationId': 'c8c558a0c0401',
+                'timestamp': '2016-05-29T04:09:05.377-07:00'
+            },
+            'returnUrl': self.return_url,
+            'sender': {'accountId': 'ABCDEFG'},
+            'senderEmail': 'fake-buyer@gmail.com',
+            'startingDate': '2016-05-30T18:27:48.000+08:00',
+            'status': 'ACTIVE'
+        }
+        mock_post.return_value.json.return_value = mock_response
+
+        preapproval_detials = PreApprovalDetails(self.credentials, debug=True)
+        resp = preapproval_detials.request()
+
+        self.assertEquals(resp.ack, 'Success')
+        self.assertEquals(resp.approved, 'true')
+        self.assertEquals(resp.status, 'ACTIVE')
+        self.assertEquals(resp.maxTotalAmountOfAllPayments, '500.00')
+        self.assertEquals(resp.sender, {'accountId': 'ABCDEFG'})
+        self.assertEquals(resp.senderEmail, 'fake-buyer@gmail.com')
 
     @patch('yappa.api.requests.post')
     def test_retrieve_preapproval_details_with_invalid_key(self, mock_post):

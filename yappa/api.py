@@ -109,7 +109,8 @@ class PreApprovalDetails(AdaptiveApiBase):
         response_fields = ['ack', 'approved', 'cancelUrl', 'curPayments', 'curPaymentsAmount',
                            'curPeriodAttempts', 'currencyCode', 'dateOfMonth', 'dayOfWeek',
                            'displayMaxTotalAmount', 'endingDate', 'maxTotalAmountOfAllPayments',
-                           'paymentPeriod', 'pinType', 'returnUrl', 'startingDate', 'status']
+                           'paymentPeriod', 'pinType', 'returnUrl', 'startingDate', 'status',
+                           'sender', 'senderEmail']
 
         if ack in ('Success', 'SuccessWithWarning'):
             ApiResponse = namedtuple('ApiResponse', response_fields)
