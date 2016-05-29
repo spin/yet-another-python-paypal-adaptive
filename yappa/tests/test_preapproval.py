@@ -74,7 +74,7 @@ class PreApprovalTestCase(unittest.TestCase):
         self.assertEquals(json.loads(kwargs['data']), expected_payload)
 
     @patch('yappa.apis.requests.post')
-    def test_preapproval_approved(self, mock_post):
+    def test_request_preapproval_successfully(self, mock_post):
         mock_response = {
             'preapprovalKey': self.preapproval_key,
             'responseEnvelope': {
@@ -91,4 +91,4 @@ class PreApprovalTestCase(unittest.TestCase):
         self.assertEquals(resp.ack, 'Success')
         self.assertEquals(resp.preapprovalKey, self.preapproval_key)
         self.assertEqual(resp.nextUrl, ('https://www.sandbox.paypal.com/cgi-bin/webscr?'
-                                         'cmd=_ap-preapproval&preapprovalkey=PA-11111111111111111'))
+                                        'cmd=_ap-preapproval&preapprovalkey=PA-11111111111111111'))
