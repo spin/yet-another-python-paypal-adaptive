@@ -3,7 +3,7 @@ import unittest
 from unittest.mock import MagicMock, patch
 from decimal import Decimal
 
-from yappa.apis import PreApproval
+from yappa.api import PreApproval
 
 
 class PreApprovalTestCase(unittest.TestCase):
@@ -29,7 +29,7 @@ class PreApprovalTestCase(unittest.TestCase):
     def tearDown(self):
         pass
 
-    @patch('yappa.apis.requests')
+    @patch('yappa.api.requests')
     def test_request_preapproval(self, mock_request):
         expected_endpoint = 'https://svcs.sandbox.paypal.com/AdaptivePayments/Preapproval'
         expected_headers = {
@@ -73,7 +73,7 @@ class PreApprovalTestCase(unittest.TestCase):
         self.assertEquals(kwargs['headers'], expected_headers)
         self.assertEquals(json.loads(kwargs['data']), expected_payload)
 
-    @patch('yappa.apis.requests.post')
+    @patch('yappa.api.requests.post')
     def test_request_preapproval_successfully(self, mock_post):
         mock_response = {
             'preapprovalKey': self.preapproval_key,
