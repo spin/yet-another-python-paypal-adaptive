@@ -24,12 +24,13 @@ class PreApprovalTestCase(unittest.TestCase):
         self.max_number_of_payments = 15
         self.max_total_amount_of_all_payments = Decimal('500.55')
 
+        self.preapproval_key = 'PA-11111111111111111'
+
     def tearDown(self):
         pass
 
     @patch('yappa.apis.requests')
     def test_request_preapproval(self, mock_request):
-
         expected_endpoint = 'https://svcs.sandbox.paypal.com/AdaptivePayments/Preapproval'
         expected_headers = {
             'X-PAYPAL-SECURITY-USERID': 'fakeuserid',
@@ -71,3 +72,27 @@ class PreApprovalTestCase(unittest.TestCase):
         self.assertEquals(args, (expected_endpoint,))
         self.assertEquals(kwargs['headers'], expected_headers)
         self.assertEquals(json.loads(kwargs['data']), expected_payload)
+
+    @patch('yappa.apis.requests.post')
+    def test_preapproval_approved(self, mock_post):
+        mock_response = {
+            'preapprovalKey': self.preapproval_key,
+            'responseEnvelope': {
+                'ack': 'Success',
+                'build': '99999999',
+                'correlationId': 'd99999eac1e999',
+                'timestamp': '2016-05-29T03:27:49.944-07:00'}
+        }
+        mock_post.return_value.json.return_value = mock_response
+
+        preapproval = PreApproval(self.credentials, debug=True)
+        resp = preapproval.request()
+
+        self.assertEquals(resp.status, 'Success')
+        self.assertEquals(resp.preapproval_key, self.preapproval_key)
+        self.assertEqual(resp.next_url, ('https://www.sandbox.paypal.com/cgi-bin/webscr?'
+                                         'cmd=_ap-preapproval&preapprovalkey=PA-11111111111111111'))
+
+    @patch('yappa.apis.requests')
+    def test_preapproval_cancled(self, mock_request):
+        pass

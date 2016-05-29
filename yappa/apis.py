@@ -46,10 +46,6 @@ class AdaptiveApiBase(metaclass=ABCMeta):
 
         return self.build_response(response.json())
 
-    @abstractproperty
-    def next_url(self):
-        pass
-
     @abstractmethod
     def build_payload(self, *args, **kwargs):
         pass
@@ -66,17 +62,6 @@ class PreApproval(AdaptiveApiBase):
         super().__init__(*args, **kwargs)
         self.endpoint = '{}/{}'.format(self.endpoint, 'Preapproval')
 
-    @property
-    def next_url(self):
-        next_url = ''
-
-        if self.auth_url and self.preapproval_key:
-            next_url = '{}?cmd=_ap-preapproval&preapprovalkey={}'.format(
-                self.auth_url,
-                self.preapproval_key)
-
-        return next_url
-
     def build_payload(self, *args, **kwargs):
         return {
             'startingDate': kwargs.get('starting_date'),
@@ -90,11 +75,15 @@ class PreApproval(AdaptiveApiBase):
         }
 
     def build_response(self, response):
-        ApiResponse = namedtuple('ApiResponse', ['status', 'preapproval_key'])
+        ApiResponse = namedtuple('ApiResponse', ['status', 'preapproval_key', 'next_url'])
         status = response['responseEnvelope']['ack']
         key = response['preapprovalKey']
+        next_url = ''
 
-        return ApiResponse(status=status, preapproval_key=key)
+        if self.auth_url and key:
+            next_url = '{}?cmd=_ap-preapproval&preapprovalkey={}'.format(self.auth_url, key)
+
+        return ApiResponse(status=status, preapproval_key=key, next_url=next_url)
 
 
 class PreApprovalDetails(AdaptiveApiBase):
