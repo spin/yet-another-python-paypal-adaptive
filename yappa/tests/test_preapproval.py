@@ -88,11 +88,7 @@ class PreApprovalTestCase(unittest.TestCase):
         preapproval = PreApproval(self.credentials, debug=True)
         resp = preapproval.request()
 
-        self.assertEquals(resp.status, 'Success')
-        self.assertEquals(resp.preapproval_key, self.preapproval_key)
-        self.assertEqual(resp.next_url, ('https://www.sandbox.paypal.com/cgi-bin/webscr?'
+        self.assertEquals(resp.ack, 'Success')
+        self.assertEquals(resp.preapprovalKey, self.preapproval_key)
+        self.assertEqual(resp.nextUrl, ('https://www.sandbox.paypal.com/cgi-bin/webscr?'
                                          'cmd=_ap-preapproval&preapprovalkey=PA-11111111111111111'))
-
-    @patch('yappa.apis.requests')
-    def test_preapproval_cancled(self, mock_request):
-        pass

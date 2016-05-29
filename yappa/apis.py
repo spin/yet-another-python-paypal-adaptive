@@ -75,15 +75,15 @@ class PreApproval(AdaptiveApiBase):
         }
 
     def build_response(self, response):
-        ApiResponse = namedtuple('ApiResponse', ['status', 'preapproval_key', 'next_url'])
-        status = response['responseEnvelope']['ack']
+        ApiResponse = namedtuple('ApiResponse', ['ack', 'preapprovalKey', 'nextUrl'])
+        ack = response['responseEnvelope']['ack']
         key = response['preapprovalKey']
         next_url = ''
 
         if self.auth_url and key:
             next_url = '{}?cmd=_ap-preapproval&preapprovalkey={}'.format(self.auth_url, key)
 
-        return ApiResponse(status=status, preapproval_key=key, next_url=next_url)
+        return ApiResponse(ack=ack, preapprovalKey=key, nextUrl=next_url)
 
 
 class PreApprovalDetails(AdaptiveApiBase):
