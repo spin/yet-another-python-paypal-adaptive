@@ -9,12 +9,6 @@ from yappa.utils import decimal_default, build_failure_response
 
 
 class AdaptiveApiBase(metaclass=ABCMeta):
-    headers = {}
-    payload = {
-        'requestEnvelope': {
-            'errorLanguage': 'en_US',
-        }
-    }
 
     def __init__(self, credentials, debug=False):
         settings = Settings(debug=debug)
@@ -22,6 +16,13 @@ class AdaptiveApiBase(metaclass=ABCMeta):
         self.endpoint = settings.PAYPAL_ENDPOINT
         self.auth_url = settings.PAYPAL_AUTH_URL
         self.credentials = credentials
+
+        self.headers = {}
+        self.payload = {
+            'requestEnvelope': {
+                'errorLanguage': 'en_US',
+            }
+        }
 
         self._build_headers()
 
@@ -97,6 +98,29 @@ class PreApprovalDetails(AdaptiveApiBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.endpoint = '{}/{}'.format(self.endpoint, 'PreapprovalDetails')
+
+    def build_payload(self, *args, **kwargs):
+        return {
+            'preapprovalKey': kwargs.get('preapprovalKey'),
+        }
+
+    def build_response(self, response):
+        ack = response['responseEnvelope']['ack']
+        response_fields = ['ack', 'approved', 'cancelUrl', 'curPayments', 'curPaymentsAmount',
+                           'curPeriodAttempts', 'currencyCode', 'dateOfMonth', 'dayOfWeek',
+                           'displayMaxTotalAmount', 'endingDate', 'maxTotalAmountOfAllPayments',
+                           'paymentPeriod', 'pinType', 'returnUrl', 'startingDate', 'status']
+
+        if ack in ('Success', 'SuccessWithWarning'):
+            ApiResponse = namedtuple('ApiResponse', response_fields)
+            response_kwargs = {field: ack if field == 'ack' else response.get(field) for field in response_fields}
+
+            api_response = ApiResponse(**response_kwargs)
+
+        else:
+            api_response = build_failure_response(response)
+
+        return api_response
 
 
 class Pay(AdaptiveApiBase):

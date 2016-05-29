@@ -1,9 +1,9 @@
 import json
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 from decimal import Decimal
 
-from yappa.api import PreApproval
+from yappa.api import PreApproval, PreApprovalDetails
 
 
 class PreApprovalTestCase(unittest.TestCase):
@@ -150,3 +150,33 @@ class PreApprovalTestCase(unittest.TestCase):
         self.assertEquals(resp.errorId, '580024')
         self.assertEquals(resp.message, 'The start date must be in the future')
         self.assertEquals(resp.timestamp, '2016-05-29T09:25:28.817-07:00')
+
+    @patch('yappa.api.requests')
+    def test_retrieve_preapproval_details(self, mock_request):
+        expected_endpoint = 'https://svcs.sandbox.paypal.com/AdaptivePayments/PreapprovalDetails'
+        expected_headers = {
+            'X-PAYPAL-SECURITY-USERID': 'fakeuserid',
+            'X-PAYPAL-SECURITY-PASSWORD': 'fakepassword',
+            'X-PAYPAL-SECURITY-SIGNATURE': '123456789',
+            'X-PAYPAL-APPLICATION-ID': 'APP-123456',
+            'X-PAYPAL-REQUEST-DATA-FORMAT': 'JSON',
+            'X-PAYPAL-RESPONSE-DATA-FORMAT': 'JSON',
+        }
+        expected_payload = {
+            'preapprovalKey': self.preapproval_key,
+            'requestEnvelope': {
+                'errorLanguage': 'en_US',
+            }
+        }
+
+        preapproval_detials = PreApprovalDetails(self.credentials, debug=True)
+
+        preapproval_detials.request(
+            preapprovalKey=self.preapproval_key,
+        )
+
+        args, kwargs = mock_request.post.call_args
+
+        self.assertEquals(args, (expected_endpoint,))
+        self.assertEquals(kwargs['headers'], expected_headers)
+        self.assertEquals(json.loads(kwargs['data']), expected_payload)
