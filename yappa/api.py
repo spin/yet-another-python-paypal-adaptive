@@ -64,14 +64,14 @@ class PreApproval(AdaptiveApiBase):
 
     def build_payload(self, *args, **kwargs):
         return {
-            'startingDate': kwargs.get('starting_date'),
-            'endingDate': kwargs.get('ending_date'),
-            'returnUrl': kwargs.get('return_url'),
-            'cancelUrl': kwargs.get('cancel_url'),
-            'currencyCode': kwargs.get('currency'),
-            'maxAmountPerPayment': kwargs.get('max_amount_per_payment'),
-            'maxNumberOfPayments': kwargs.get('max_number_of_payments'),
-            'maxTotalAmountOfAllPayments': kwargs.get('max_total_amount_of_all_payments')
+            'startingDate': kwargs.get('startingDate'),
+            'endingDate': kwargs.get('endingDate'),
+            'returnUrl': kwargs.get('returnUrl'),
+            'cancelUrl': kwargs.get('cancelUrl'),
+            'currencyCode': kwargs.get('currencyCode'),
+            'maxAmountPerPayment': kwargs.get('maxAmountPerPayment'),
+            'maxNumberOfPayments': kwargs.get('maxNumberOfPayments'),
+            'maxTotalAmountOfAllPayments': kwargs.get('maxTotalAmountOfAllPayments')
         }
 
     def build_response(self, response):

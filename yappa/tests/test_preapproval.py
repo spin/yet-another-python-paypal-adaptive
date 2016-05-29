@@ -57,14 +57,14 @@ class PreApprovalTestCase(unittest.TestCase):
         preapproval = PreApproval(self.credentials, debug=True)
 
         preapproval.request(
-            starting_date=self.starting_date,
-            ending_date=self.ending_date,
-            currency='USD',
-            return_url=self.return_url,
-            cancel_url=self.cancel_url,
-            max_amount_per_payment=self.max_amount_per_payment,
-            max_number_of_payments=self.max_number_of_payments,
-            max_total_amount_of_all_payments=self.max_total_amount_of_all_payments
+            startingDate=self.starting_date,
+            endingDate=self.ending_date,
+            currencyCode='USD',
+            returnUrl=self.return_url,
+            cancelUrl=self.cancel_url,
+            maxAmountPerPayment=self.max_amount_per_payment,
+            maxNumberOfPayments=self.max_number_of_payments,
+            maxTotalAmountOfAllPayments=self.max_total_amount_of_all_payments
         )
 
         args, kwargs = mock_request.post.call_args
