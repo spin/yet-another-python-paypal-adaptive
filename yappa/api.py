@@ -1,11 +1,11 @@
 import json
-from abc import ABCMeta, abstractproperty, abstractmethod
+from abc import ABCMeta, abstractmethod
 from collections import namedtuple
 
 import requests
 
 from yappa.settings import Settings
-from yappa.utils import decimal_default
+from yappa.utils import decimal_default, build_failure_response
 
 
 class AdaptiveApiBase(metaclass=ABCMeta):
@@ -75,15 +75,22 @@ class PreApproval(AdaptiveApiBase):
         }
 
     def build_response(self, response):
-        ApiResponse = namedtuple('ApiResponse', ['ack', 'preapprovalKey', 'nextUrl'])
         ack = response['responseEnvelope']['ack']
-        key = response['preapprovalKey']
-        next_url = ''
 
-        if self.auth_url and key:
-            next_url = '{}?cmd=_ap-preapproval&preapprovalkey={}'.format(self.auth_url, key)
+        if ack in ('Success', 'SuccessWithWarning'):
+            ApiResponse = namedtuple('ApiResponse', ['ack', 'preapprovalKey', 'nextUrl'])
+            key = response['preapprovalKey']
+            next_url = ''
 
-        return ApiResponse(ack=ack, preapprovalKey=key, nextUrl=next_url)
+            if self.auth_url and key:
+                next_url = '{}?cmd=_ap-preapproval&preapprovalkey={}'.format(self.auth_url, key)
+
+            api_response = ApiResponse(ack=ack, preapprovalKey=key, nextUrl=next_url)
+
+        else:   # ack in ('Failure', 'FailureWithWarning')
+            api_response = build_failure_response(response)
+
+        return api_response
 
 
 class PreApprovalDetails(AdaptiveApiBase):

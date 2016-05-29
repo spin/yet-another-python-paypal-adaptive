@@ -92,3 +92,32 @@ class PreApprovalTestCase(unittest.TestCase):
         self.assertEquals(resp.preapprovalKey, self.preapproval_key)
         self.assertEqual(resp.nextUrl, ('https://www.sandbox.paypal.com/cgi-bin/webscr?'
                                         'cmd=_ap-preapproval&preapprovalkey=PA-11111111111111111'))
+
+    @patch('yappa.api.requests.post')
+    def test_request_preapproval_with_invalid_payment(self, mock_post):
+        mock_response = {
+            'error': [{
+                'category': 'Application',
+                'domain': 'PLATFORM',
+                'errorId': '580001',
+                'message': 'Invalid request: Data validation',
+                'parameter': ['Data validation warning(line -1, col 0): null'],
+                'severity': 'Error',
+                'subdomain': 'Application'
+            }],
+            'responseEnvelope': {
+                'ack': 'Failure',
+                'build': '20420247',
+                'correlationId': '0d30f655e5515',
+                'timestamp': '2016-05-29T04:55:31.432-07:00'
+            }
+        }
+        mock_post.return_value.json.return_value = mock_response
+
+        preapproval = PreApproval(self.credentials, debug=True)
+        resp = preapproval.request()
+
+        self.assertEquals(resp.ack, 'Failure')
+        self.assertEquals(resp.errorId, '580001')
+        self.assertEquals(resp.message, 'Invalid request: Data validation')
+        self.assertEquals(resp.timestamp, '2016-05-29T04:55:31.432-07:00')
