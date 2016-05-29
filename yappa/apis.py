@@ -5,6 +5,7 @@ from collections import namedtuple
 import requests
 
 from yappa.settings import Settings
+from yappa.utils import decimal_default
 
 
 class AdaptiveApiBase(metaclass=ABCMeta):
@@ -40,7 +41,7 @@ class AdaptiveApiBase(metaclass=ABCMeta):
         self.payload.update(self.build_payload(*args, **kwargs))
 
         response = requests.post(self.endpoint,
-                                 data=json.dumps(self.payload),
+                                 data=json.dumps(self.payload, default=decimal_default),
                                  headers=self.headers)
 
         return self.build_response(response.json())

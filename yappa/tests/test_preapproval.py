@@ -1,6 +1,7 @@
 import json
 import unittest
 from unittest.mock import MagicMock, patch
+from decimal import Decimal
 
 from yappa.apis import PreApproval
 
@@ -19,9 +20,9 @@ class PreApprovalTestCase(unittest.TestCase):
         self.currency = 'USD'
         self.return_url = 'http://return.url'
         self.cancel_url = 'http://cancel.url'
-        self.max_amount_per_payment = '35.00'
-        self.max_number_of_payments = '15'
-        self.max_total_amount_of_all_payments = '500.00'
+        self.max_amount_per_payment = Decimal('35.55')
+        self.max_number_of_payments = 15
+        self.max_total_amount_of_all_payments = Decimal('500.55')
 
     def tearDown(self):
         pass
@@ -44,9 +45,9 @@ class PreApprovalTestCase(unittest.TestCase):
             'returnUrl': self.return_url,
             'cancelUrl': self.cancel_url,
             'currencyCode': self.currency,
-            'maxAmountPerPayment': self.max_amount_per_payment,
+            'maxAmountPerPayment': 35.55,
             'maxNumberOfPayments': self.max_number_of_payments,
-            'maxTotalAmountOfAllPayments': self.max_total_amount_of_all_payments,
+            'maxTotalAmountOfAllPayments': 500.55,
             'requestEnvelope': {
                 'errorLanguage': 'en_US',
             }
