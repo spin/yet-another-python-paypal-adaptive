@@ -84,20 +84,26 @@ class ModelTestCase(unittest.TestCase):
 
         receiver_list = ReceiverList(receivers)
 
-        self.assertEquals(receiver_list.to_json(), [
-            {'email': 'receiver1@gmail.com', 'amount': '10'},
-            {'email': 'receiver2@gmail.com', 'amount': '15'},
-            {'email': 'receiver3@gmail.com', 'amount': '20'},
-        ])
+        self.assertEquals(receiver_list.to_json(), {
+            'receiver': [
+                {'email': 'receiver1@gmail.com', 'amount': '10'},
+                {'email': 'receiver2@gmail.com', 'amount': '15'},
+                {'email': 'receiver3@gmail.com', 'amount': '20'},
+            ]
+        })
 
     def test_append_receiver_successfully(self):
         receiver_list = ReceiverList([Receiver(email='first@gmail.com', amount=Decimal('11.1'))])
 
-        self.assertEquals(receiver_list.to_json(), [{'email': 'first@gmail.com', 'amount': '11.1'}])
+        self.assertEquals(receiver_list.to_json(), {
+            'receiver': [{'email': 'first@gmail.com', 'amount': '11.1'}]
+        })
 
         receiver_list.append(Receiver(email='second@gmail.com', amount=Decimal('22.2')))
 
-        self.assertEquals(receiver_list.to_json(), [
-            {'email': 'first@gmail.com', 'amount': '11.1'},
-            {'email': 'second@gmail.com', 'amount': '22.2'},
-        ])
+        self.assertEquals(receiver_list.to_json(), {
+            'receiver': [
+                {'email': 'first@gmail.com', 'amount': '11.1'},
+                {'email': 'second@gmail.com', 'amount': '22.2'},
+            ]
+        })

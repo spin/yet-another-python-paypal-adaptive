@@ -61,4 +61,6 @@ class ReceiverList(object):
         self.receivers.append(receiver)
 
     def to_json(self):
-        return [receiver.to_dict() for receiver in self.receivers]
+        return {
+            'receiver': [receiver.to_dict() for receiver in self.receivers]
+        }
