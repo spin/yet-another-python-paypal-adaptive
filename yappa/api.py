@@ -130,6 +130,16 @@ class Pay(AdaptiveApiBase):
         super().__init__(*args, **kwargs)
         self.endpoint = '{}/{}'.format(self.endpoint, 'Pay')
 
+    def build_payload(self, *args, **kwargs):
+        return {
+            'actionType': 'PAY',
+            'currencyCode': kwargs.get('currencyCode'),
+            'senderEmail': kwargs.get('senderEmail'),
+            'receiverList': kwargs.get('receiverList'),
+            'returnUrl': kwargs.get('returnUrl'),
+            'cancelUrl': kwargs.get('cancelUrl')
+        }
+
     @property
     def next_url(self):
         next_url = ''
