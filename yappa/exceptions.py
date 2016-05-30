@@ -9,3 +9,7 @@ class PayException(AdaptiveApiException):
 
 class PreApprovalException(AdaptiveApiException):
     pass
+
+
+class InvalidReceiverException(AdaptiveApiException):
+    pass
