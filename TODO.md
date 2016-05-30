@@ -18,3 +18,5 @@ preapproval.request(**data)
 ## Questions
 
 - In `Pay` operation, is the `ClientDetails` field necessary?
+
+- Need to support other payment operations? (Chained, Delayed Chained)
