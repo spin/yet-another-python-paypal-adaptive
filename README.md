@@ -30,6 +30,7 @@ credentials = {
 from decimal import Decimal
 from yappa.api import PreAproval
 
+# debug=True will use sandbox
 preapproval = PreApproval(credentials, debug=True)
 
 resp = preapproval.request(
@@ -46,4 +47,35 @@ resp = preapproval.request(
 # Get preapproval key and authorization URL
 preapproval_key = resp.preapprovalKey
 auth_url = resp.nextUrl
+```
+
+### Example of capture payments
+```
+from decimal import Decimal
+from yappa.api import Pay
+from yappa.models import Receiver, ReceiverList
+
+receivers = [
+    Receiver(email='receiver1@gmail.com', amount=Decimal('10.00')),
+    Receiver(email='receiver2@gmail.com', amount=Decimal('15.00'))
+]
+    
+receiver_list = ReceiverList(receivers)
+
+pay = Pay(self.credentials, debug=True)
+
+resp = pay.request(
+    currencyCode='USD',
+    returnUrl='http://return.url',
+    cancelUrl='http://cancel.url',
+    senderEmail='sender@gmail.com',
+    memo='some message',
+    receiverList=receiver_list
+)
+
+# Get pay key and payment details
+pay_key = resp.payKey
+exec_status = resp.paymentExecStatus    # COMPLETED
+sender = resp.sender    # {'accountId': 'XXXAAABBB'}
+payment_info = resp.paymentInfoList
 ```
