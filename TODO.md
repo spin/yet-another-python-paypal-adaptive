@@ -20,3 +20,7 @@ preapproval.request(**data)
 - In `Pay` operation, is the `ClientDetails` field necessary?
 
 - Need to support other payment operations? (Chained, Delayed Chained)
+
+## TODO
+
+- Need to check there should be only one primary receiver
