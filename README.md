@@ -42,4 +42,8 @@ resp = preapproval.request(
     maxNumberOfPayments=20,
     maxTotalAmountOfAllPayments=Decimal('1500.00')
 )
+
+# Get preapproval key and authorization URL
+preapproval_key = resp.preapprovalKey
+auth_url = resp.nextUrl
 ```
