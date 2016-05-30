@@ -57,7 +57,6 @@ class AdaptiveApiBase(metaclass=ABCMeta):
 
 
 class PreApproval(AdaptiveApiBase):
-    preapproval_key = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -95,6 +94,7 @@ class PreApproval(AdaptiveApiBase):
 
 
 class PreApprovalDetails(AdaptiveApiBase):
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.endpoint = '{}/{}'.format(self.endpoint, 'PreapprovalDetails')
@@ -125,7 +125,6 @@ class PreApprovalDetails(AdaptiveApiBase):
 
 
 class Pay(AdaptiveApiBase):
-    pay_key = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
