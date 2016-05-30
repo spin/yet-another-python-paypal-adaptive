@@ -127,21 +127,75 @@ class PaymentTestCase(unittest.TestCase):
         }
 
         mock_post.return_value.json.return_value = mock_response
-
         receiver_list = ReceiverList([])    # No need to be true receiver list
 
         pay = Pay(self.credentials, debug=True)
-        resp = pay.request(
-            currencyCode='USD',
-            returnUrl=self.return_url,
-            cancelUrl=self.cancel_url,
-            senderEmail=self.sender_email,
-            memo=self.memo,
-            receiverList=receiver_list
-        )
+        resp = pay.request(receiverList=receiver_list)
 
         self.assertEquals(resp.ack, 'Success')
         self.assertEquals(resp.payKey, self.pay_key)
         self.assertEquals(resp.paymentExecStatus, 'COMPLETED')
         self.assertEquals(resp.sender, {'accountId': 'SD97PL53N4N2Y'})
         self.assertEquals(resp.paymentInfoList, expected_payment_info_list)
+
+    @patch('yappa.api.requests.post')
+    def test_capture_preapproved_payment_with_invalid_preapproval_key(self, mock_post):
+        mock_response = {
+            'error': [{
+                'category': 'Application',
+                'domain': 'PLATFORM',
+                'errorId': '580022',
+                'message': 'Invalid request parameter: preapprovalKey with value NON_EXISTENT_KEY',
+                'parameter': ['preapprovalKey', 'NON_EXISTENT_KEY'],
+                'severity': 'Error',
+                'subdomain': 'Application'
+            }],
+            'responseEnvelope': {
+                'ack': 'Failure',
+                'build': '20420247',
+                'correlationId': 'e0c1fa3692d17',
+                'timestamp': '2016-05-30T10:21:25.631-07:00'
+            }
+        }
+
+        mock_post.return_value.json.return_value = mock_response
+        receiver_list = ReceiverList([])
+
+        pay = Pay(self.credentials, debug=True)
+        resp = pay.request(receiverList=receiver_list)
+
+        self.assertEquals(resp.ack, 'Failure')
+        self.assertEquals(resp.errorId, '580022')
+        self.assertEquals(resp.message, 'Invalid request parameter: preapprovalKey with value NON_EXISTENT_KEY')
+        self.assertEquals(resp.timestamp, '2016-05-30T10:21:25.631-07:00')
+
+    @patch('yappa.api.requests.post')
+    def test_capture_preapproved_payment_with_duplicate_receiver(self, mock_post):
+        mock_response = {
+            'error': [{
+                'category': 'Application',
+                'domain': 'PLATFORM',
+                'errorId': '579040',
+                'message': 'Receiver PayPal accounts must be unique.',
+                'parameter': ['receiver'],
+                'severity': 'Error',
+                'subdomain': 'Application'
+            }],
+            'responseEnvelope': {
+                'ack': 'Failure',
+                'build': '20420247',
+                'correlationId': '93b6326927fc8',
+                'timestamp': '2016-05-30T10:27:03.931-07:00'
+            }
+        }
+
+        mock_post.return_value.json.return_value = mock_response
+        receiver_list = ReceiverList([])
+
+        pay = Pay(self.credentials, debug=True)
+        resp = pay.request(receiverList=receiver_list)
+
+        self.assertEquals(resp.ack, 'Failure')
+        self.assertEquals(resp.errorId, '579040')
+        self.assertEquals(resp.message, 'Receiver PayPal accounts must be unique.')
+        self.assertEquals(resp.timestamp, '2016-05-30T10:27:03.931-07:00')
