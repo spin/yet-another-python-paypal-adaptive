@@ -4,8 +4,10 @@ from collections import namedtuple
 
 import requests
 
-from yappa.settings import Settings
-from yappa.utils import decimal_default, build_failure_response
+from .settings import Settings
+from .utils import decimal_default, build_failure_response
+from .models import ReceiverList
+from .exceptions import InvalidReceiverException
 
 
 class AdaptiveApiBase(metaclass=ABCMeta):
@@ -79,7 +81,7 @@ class PreApproval(AdaptiveApiBase):
 
         if ack in ('Success', 'SuccessWithWarning'):
             ApiResponse = namedtuple('ApiResponse', ['ack', 'preapprovalKey', 'nextUrl'])
-            key = response['preapprovalKey']
+            key = response.get('preapprovalKey')
             next_url = ''
 
             if self.auth_url and key:
@@ -125,28 +127,55 @@ class PreApprovalDetails(AdaptiveApiBase):
 
 
 class Pay(AdaptiveApiBase):
+    DEFAULT_FEES_PAYER = 'EACHRECEIVER'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.endpoint = '{}/{}'.format(self.endpoint, 'Pay')
 
     def build_payload(self, *args, **kwargs):
-        return {
+        receiver_list = kwargs.get('receiverList')
+        preapproval_key = kwargs.get('preapprovalKey', None)
+
+        if not isinstance(receiver_list, ReceiverList):
+            raise InvalidReceiverException('receiverList needs to be instance of yappa.models.RecieverList')
+
+        payload = {
             'actionType': 'PAY',
+            'feesPayer': kwargs.get('feesPayer', self.DEFAULT_FEES_PAYER),
             'currencyCode': kwargs.get('currencyCode'),
             'senderEmail': kwargs.get('senderEmail'),
-            'receiverList': kwargs.get('receiverList'),
+            'receiverList': receiver_list.to_json(),
             'returnUrl': kwargs.get('returnUrl'),
-            'cancelUrl': kwargs.get('cancelUrl')
+            'cancelUrl': kwargs.get('cancelUrl'),
+            'memo': kwargs.get('memo', '')
         }
 
-    @property
-    def next_url(self):
-        next_url = ''
+        if preapproval_key is not None:
+            payload['preapprovalKey'] = preapproval_key
 
-        if self.auth_url and self.pay_key:
-            next_url = '{}?cmd=_ap-payment&paykey={}'.format(
-                self.auth_url,
-                self.pay_key)
+        return payload
 
-        return next_url
+    def build_response(self, response):
+        ack = response['responseEnvelope']['ack']
+        response_fields = ['ack', 'payKey', 'paymentExecStatus', 'paymentInfoList', 'sender']
+
+        if ack in ('Success', 'SuccessWithWarning'):
+            ApiResponse = namedtuple('ApiResponse', response_fields)
+            info_list = response.get('paymentInfoList', None)
+            payment_info_list = info_list['paymentInfo'] if info_list else None
+
+            response_kwargs = {
+                'ack': ack,
+                'payKey': response.get('payKey'),
+                'paymentExecStatus': response.get('paymentExecStatus'),
+                'paymentInfoList': payment_info_list,
+                'sender': response.get('sender')
+            }
+
+            api_response = ApiResponse(**response_kwargs)
+
+        else:
+            api_response = build_failure_response(response)
+
+        return api_response
