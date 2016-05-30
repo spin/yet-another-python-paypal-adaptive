@@ -1,5 +1,5 @@
 
-## Django integration
+## Add Django integration sample
 
 ### Preapproval with Django form
 ```
