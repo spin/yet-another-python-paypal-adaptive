@@ -14,3 +14,7 @@ data = form.cleaned_data
 preapproval.request(**data)
 
 ```
+
+## Questions
+
+- In `Pay` operation, is the `ClientDetails` field necessary?
