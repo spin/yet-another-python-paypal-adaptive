@@ -45,8 +45,8 @@ resp = preapproval.request(
 )
 
 # Get preapproval key and authorization URL
-preapproval_key = resp.preapprovalKey
-auth_url = resp.nextUrl
+preapproval_key = resp.preapprovalKey    # e.g. 'PA-111111111'
+auth_url = resp.nextUrl                  # e.g. 'https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_ap-preapproval&preapprovalkey=PA-111111111'
 ```
 
 ### Example of capture payments
@@ -75,7 +75,18 @@ resp = pay.request(
 
 # Get pay key and payment details
 pay_key = resp.payKey
-exec_status = resp.paymentExecStatus    # COMPLETED
-sender = resp.sender    # {'accountId': 'XXXAAABBB'}
+exec_status = resp.paymentExecStatus    # e.g. 'COMPLETED'
+sender = resp.sender                    # e.g. {'accountId': 'XXXAAABBB'}
 payment_info = resp.paymentInfoList
+```
+
+### Example of failure response
+```
+pay = Pay(self.credentials, debug=True)
+resp = pay.request(...)
+
+if resp.ack == 'Failure':
+    error_id = resp.errorId         # e.g. '579040'
+    message = resp.message          # e.g. 'Receiver PayPal accounts must be unique.'
+    timestamp = resp.timestamp      # e.g. '2016-05-30T10:27:03.931-07:00'
 ```
