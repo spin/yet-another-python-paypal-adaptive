@@ -29,9 +29,36 @@ class Receiver(object):
     def __unicode__(self):
         return self.email
 
+    def __repr__(self):
+        return '<Receiver:{}>'.format(self.email)
+
 
 class ReceiverList(object):
     MAX_RECEIVER_AMOUNT = 6
 
-    def __init__(self):
-        pass
+    def __init__(self, receivers=None):
+        self.receivers = []
+
+        if receivers and len(receivers) > self.MAX_RECEIVER_AMOUNT:
+            raise InvalidReceiverException('each payment request has a maximum of {} receivers'.
+                                           format(self.MAX_RECEIVER_AMOUNT))
+
+        if receivers is not None:
+            for receiver in receivers:
+                self.append(receiver)
+
+    def __len__(self):
+        return len(self.receivers)
+
+    def append(self, receiver):
+        if not isinstance(receiver, Receiver):
+            raise InvalidReceiverException('receiver needs to be instance of yappa.models.Reciever')
+
+        if len(self.receivers) == self.MAX_RECEIVER_AMOUNT:
+            raise InvalidReceiverException('each payment request has a maximum of {} receivers'.
+                                           format(self.MAX_RECEIVER_AMOUNT))
+
+        self.receivers.append(receiver)
+
+    def to_json(self):
+        return [receiver.to_dict() for receiver in self.receivers]
