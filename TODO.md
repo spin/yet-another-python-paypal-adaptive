@@ -24,3 +24,5 @@ preapproval.request(**data)
 ## TODO
 
 - Need to check there should be only one primary receiver
+
+- Implement other action types for payment? (CREATE, PAY_PRIMARY)
