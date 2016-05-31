@@ -1,6 +1,5 @@
 import decimal
 from datetime import datetime, timezone
-from collections import namedtuple
 
 import pytz
 
@@ -29,21 +28,3 @@ def decimal_default(obj):
         return float(obj)
     raise TypeError
 
-
-def build_failure_response(response_json):
-    """
-    Build PayPal request failure response object
-
-    @param response_json: response dictionary
-    @return: custom response object
-    """
-    ApiResponse = namedtuple('ApiResponse', ['ack', 'message', 'errorId', 'timestamp'])
-    ack = response_json['responseEnvelope']['ack']
-    timestamp = response_json['responseEnvelope']['timestamp']
-    error = response_json['error'][0]
-
-    return ApiResponse(
-        ack=ack,
-        errorId=error.get('errorId'),
-        message=error.get('message'),
-        timestamp=timestamp)

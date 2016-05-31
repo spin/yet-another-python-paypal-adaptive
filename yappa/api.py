@@ -5,7 +5,7 @@ from collections import namedtuple
 import requests
 
 from .settings import Settings
-from .utils import decimal_default, build_failure_response
+from .utils import decimal_default
 from .models import ReceiverList
 from .exceptions import InvalidReceiverException
 
@@ -39,6 +39,25 @@ class AdaptiveApiBase(metaclass=ABCMeta):
         }
 
         self.headers.update(headers)
+
+    @staticmethod
+    def build_failure_response(response_json):
+        """
+        Build PayPal request failure response object
+
+        @param response_json: response dictionary
+        @return: custom response object
+        """
+        ApiResponse = namedtuple('ApiResponse', ['ack', 'message', 'errorId', 'timestamp'])
+        ack = response_json['responseEnvelope']['ack']
+        timestamp = response_json['responseEnvelope']['timestamp']
+        error = response_json['error'][0]
+
+        return ApiResponse(
+            ack=ack,
+            errorId=error.get('errorId'),
+            message=error.get('message'),
+            timestamp=timestamp)
 
     def request(self, *args, **kwargs):
         self.payload.update(self.build_payload(*args, **kwargs))
@@ -90,7 +109,7 @@ class PreApproval(AdaptiveApiBase):
             api_response = ApiResponse(ack=ack, preapprovalKey=key, nextUrl=next_url)
 
         else:   # ack in ('Failure', 'FailureWithWarning')
-            api_response = build_failure_response(response)
+            api_response = self.build_failure_response(response)
 
         return api_response
 
@@ -121,7 +140,7 @@ class PreApprovalDetails(AdaptiveApiBase):
             api_response = ApiResponse(**response_kwargs)
 
         else:
-            api_response = build_failure_response(response)
+            api_response = self.build_failure_response(response)
 
         return api_response
 
@@ -176,6 +195,6 @@ class Pay(AdaptiveApiBase):
             api_response = ApiResponse(**response_kwargs)
 
         else:
-            api_response = build_failure_response(response)
+            api_response = self.build_failure_response(response)
 
         return api_response
