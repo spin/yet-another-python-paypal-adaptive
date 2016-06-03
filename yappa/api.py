@@ -155,6 +155,7 @@ class Pay(AdaptiveApiBase):
     def build_payload(self, *args, **kwargs):
         receiver_list = kwargs.get('receiverList')
         preapproval_key = kwargs.get('preapprovalKey', None)
+        memo = kwargs.get('memo', None)
 
         if not isinstance(receiver_list, ReceiverList):
             raise InvalidReceiverException('receiverList needs to be instance of yappa.models.RecieverList')
@@ -167,11 +168,13 @@ class Pay(AdaptiveApiBase):
             'receiverList': receiver_list.to_json(),
             'returnUrl': kwargs.get('returnUrl'),
             'cancelUrl': kwargs.get('cancelUrl'),
-            'memo': kwargs.get('memo', '')
         }
 
         if preapproval_key is not None:
             payload['preapprovalKey'] = preapproval_key
+
+        if memo is not None and memo.strip() != '':
+            payload['memo'] = memo
 
         return payload
 
